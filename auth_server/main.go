@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cesanta/docker_auth/auth_server/server"
+	"./server"
 	"github.com/golang/glog"
 )
 

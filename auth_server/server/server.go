@@ -26,10 +26,12 @@ import (
 	"sort"
 	"strings"
 	"time"
+    "database/sql"
 
 	"github.com/docker/distribution/registry/auth/token"
 	"github.com/golang/glog"
 	"golang.org/x/crypto/bcrypt"
+    _ "github.com/go-sql-driver/mysql"
 )
 
 type AuthRequest struct {
@@ -91,7 +93,7 @@ func (as *AuthServer) ParseRequest(req *http.Request) (*AuthRequest, error) {
 	return ar, nil
 }
 
-func (as *AuthServer) Authenticate(ar *AuthRequest) error {
+func (as *AuthServer) Authenticate2(ar *AuthRequest) error {
 	reqs := as.config.Users[ar.Account]
 	if reqs == nil {
 		return errors.New("unknown user")
@@ -102,6 +104,40 @@ func (as *AuthServer) Authenticate(ar *AuthRequest) error {
 		}
 	}
 	return nil
+}
+
+func (as *AuthServer) Authenticate(ar *AuthRequest) error {
+    db, err := sql.Open("mysql", "ljc:1@/registry")
+    if err != nil {
+        return errors.New("error when db connection")
+    }
+    defer db.Close()
+
+    rows,err := db.Query("select username,psw from users where username = ?", ar.Account)
+    if err != nil {
+        return errors.New("error when select tables")
+    }
+    defer rows.Close()
+
+    var name string
+    var dbPsw string
+    var psw PasswordString
+    for rows.Next() {
+        err := rows.Scan(&name, &dbPsw)
+        if err != nil {
+            return errors.New("can't get username and password from database")
+        }
+
+        psw = PasswordString(dbPsw)
+
+        if psw != ar.Password {
+            return errors.New("worong password. Request psw:" + string(ar.Password) + " db password:" + string(psw))
+        }
+
+        return nil
+    }
+
+    return errors.New("invalid username")
 }
 
 func (as *AuthServer) Authorize(ar *AuthRequest) (bool, error) {
