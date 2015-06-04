@@ -241,6 +241,7 @@ func (as *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		glog.Errorf("%s: %s", ar, msg)
 		return
 	}
+    glog.Errorf("token: %s", token)
 	result, _ := json.Marshal(&map[string]string{"token": token})
 	glog.V(2).Infof("%s", result)
 	rw.Header().Set("Content-Type", "application/json")

@@ -12,13 +12,13 @@
 
 server:  # Server settings.
   # Address to listen on.
-  addr: ":5001"
+  addr: ":8080"
   # TLS certificate and key.
-  certificate: "/path/to/server.pem"
-  key: "/path/to/server.key"
+  certificate: "/home/angryrookie/cert/domain.crt"
+  key: "/home/angryrookie/cert/domain.key"
 
 token:  # Settings for the tokens.
-  issuer: "Acme auth server"  # Must match issuer in the Registry config.
+  issuer: "netease auth server"  # Must match issuer in the Registry config.
   expiration: 900
   # It is possible configure a different certificate for tokens.
   # If not specified, server certificate is used.
