@@ -25,14 +25,12 @@ token:  # Settings for the tokens.
   # certificate: "..."
   # key: "..."
 
-# User map. 
-users:
-  # Password is specified as a BCrypt hash. Use htpasswd -B to generate.
-  "admin":
-    password: "$2y$05$SirvKgES6jlgIKDqElQgAu6.3d.czANNYnyPe6SJy4exvAW0cpUjW"
-  "test":
-    password: "$2y$05$RkZWQNIY8j87k1Wn4MwprOYteXizIRjpTDs6TgeSPlQh045SYybvS"
-  "": {}  # Allow anonymous (no "docker login") access.
+# db connection, only for mysql now
+db:
+    host: "127.0.0.1:3306"
+    dbname: "registry"
+    username: "ljc"
+    password: "1"
 
 # ACL specifies who can do what. If the match section of an entry matches the
 # request, the set of actions will be compared and token will be issued if

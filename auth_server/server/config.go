@@ -36,7 +36,7 @@ import (
 type Config struct {
 	Server ServerConfig             `yaml:"server"`
 	Token  TokenConfig              `yaml:"token"`
-	Users  map[string]*Requirements `yaml:"users"`
+    Db     DbConfig                 `yaml:"db"`
 	ACL    []*ACLEntry              `yaml:"acl"`
 }
 
@@ -59,6 +59,13 @@ type TokenConfig struct {
 	privateKey libtrust.PrivateKey
 }
 
+type DbConfig struct {
+    Host       string `yaml:"host"`
+    DbName     string `yaml:"dbname"`
+    DbUser     string `yaml:"username"`
+    DbPassword string `yaml:"password"`
+}
+
 type ACLEntry struct {
 	Match   *MatchConditions `yaml:"match"`
 	Actions *[]string        `yaml:"actions,flow"`
@@ -70,24 +77,10 @@ type MatchConditions struct {
 	Name    *string `yaml:"name,omitempty" json:"name,omitempty"`
 }
 
-type Requirements struct {
-	Password *PasswordString `yaml:"password,omitempty" json:"password,omitempty"`
-}
 type aclEntryJSON *ACLEntry
 
 func (e ACLEntry) String() string {
 	b, _ := json.Marshal(e)
-	return string(b)
-}
-
-func (r Requirements) String() string {
-	p := r.Password
-	if p != nil {
-		pm := PasswordString("***")
-		r.Password = &pm
-	}
-	b, _ := json.Marshal(r)
-	r.Password = p
 	return string(b)
 }
 
@@ -156,9 +149,18 @@ func validate(c *Config) error {
 		return fmt.Errorf("expiration must be positive, got %d", c.Token.Expiration)
 	}
 
-	if c.Users == nil {
-		return errors.New("no users are configured, this is probably a mistake. Use an empty map if you really want to deny everyone.")
-	}
+    if c.Db.DbName == "" {
+        return errors.New("dbname is required")
+    }
+
+    if c.Db.DbUser == "" {
+        return errors.New("db user is required")
+    }
+
+    if c.Db.DbPassword == "" {
+        return errors.New("db password is required")
+    }
+
 	if c.ACL == nil {
 		return errors.New("ACL is empty, this is probably a mistake. Use an empty list if you really want to deny all actions.")
 	}
@@ -191,6 +193,11 @@ func LoadConfig(fileName string) (*Config, error) {
 	if err = yaml.Unmarshal(contents, c); err != nil {
 		return nil, fmt.Errorf("could not parse config: %s", err)
 	}
+
+    if c.Db.Host == "" {
+        c.Db.Host = "localhost"
+    }
+
 	if err = validate(c); err != nil {
 		return nil, fmt.Errorf("invalid config: %s", err)
 	}

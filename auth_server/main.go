@@ -38,7 +38,7 @@ func main() {
 	if err != nil {
 		glog.Exitf("Failed to load config: %s", err)
 	}
-	glog.Infof("Config from %s (%d users, %d ACL entries)", configFile, len(config.Users), len(config.ACL))
+	glog.Infof("Config from %s", configFile)
 
 	s := server.NewAuthServer(config)
 

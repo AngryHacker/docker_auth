@@ -30,7 +30,6 @@ import (
 
 	"github.com/docker/distribution/registry/auth/token"
 	"github.com/golang/glog"
-	"golang.org/x/crypto/bcrypt"
     _ "github.com/go-sql-driver/mysql"
 )
 
@@ -93,21 +92,9 @@ func (as *AuthServer) ParseRequest(req *http.Request) (*AuthRequest, error) {
 	return ar, nil
 }
 
-func (as *AuthServer) Authenticate2(ar *AuthRequest) error {
-	reqs := as.config.Users[ar.Account]
-	if reqs == nil {
-		return errors.New("unknown user")
-	}
-	if reqs.Password != nil {
-		if bcrypt.CompareHashAndPassword([]byte(*reqs.Password), []byte(ar.Password)) != nil {
-			return errors.New("wrong password")
-		}
-	}
-	return nil
-}
-
 func (as *AuthServer) Authenticate(ar *AuthRequest) error {
-    db, err := sql.Open("mysql", "ljc:1@/registry")
+    dbConnectString := as.config.Db.DbUser + ":" + as.config.Db.DbPassword + "@tcp(" + as.config.Db.Host + ")/" + as.config.Db.DbName + "?charset=utf8"
+    db, err := sql.Open("mysql", dbConnectString)
     if err != nil {
         return errors.New("error when db connection")
     }
@@ -241,7 +228,7 @@ func (as *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		glog.Errorf("%s: %s", ar, msg)
 		return
 	}
-    glog.Errorf("token: %s", token)
+    //glog.Errorf("token: %s", token)
 	result, _ := json.Marshal(&map[string]string{"token": token})
 	glog.V(2).Infof("%s", result)
 	rw.Header().Set("Content-Type", "application/json")
