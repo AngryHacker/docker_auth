@@ -1,6 +1,6 @@
-drop database if exists `registry`;
+drop database if exists `registry-db`;
 
-create database `registry`
+create database `registry-db`
 	default character set utf8
 	default collate utf8_general_ci;
 
@@ -14,3 +14,8 @@ CREATE TABLE users
 	`psw` VARCHAR(128) NOT NULL comment '√‹¬Î',
 	primary key (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='”√ªß±Ì';
+
+insert into users values(null,'admin','admin');
+insert into users values(null,'test','test');
+insert into users values(null,'cheng','1');
+

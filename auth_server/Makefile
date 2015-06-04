@@ -1,12 +1,9 @@
-.PHONY: update-deps build docker-build
+all:
+	go get
+	go build -a
 
-all: docker-build
-
-update-deps:
-	go get -u -f
+get:
+	go get
 
 build:
-	go build
-
-docker-build: update-deps build
-	docker build -t cesanta/docker_auth -f Dockerfile .
+	go build -a
